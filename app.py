@@ -1,10 +1,14 @@
+import os
 from flask import Flask, request, jsonify, Response
 import yt_dlp
 import requests
 
 app = Flask(__name__)
 
-# ১. এই রুটটি ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail) দেবে
+@app.route('/')
+def home():
+    return jsonify({"status": "running", "message": "yt-dlp API is fully working!"})
+
 @app.route('/get-video', methods=['GET'])
 def get_video():
     video_url = request.args.get('url')
@@ -15,37 +19,27 @@ def get_video():
         'format': 'best',
         'quiet': True,
         'no_warnings': True,
+        'extract_flat': False
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=False)
             
-            # সমস্ত এক্সট্রা ডেটা সংগ্রহ করা হচ্ছে
-            title = info.get('title', '')
-            description = info.get('description', '')
-            thumbnail = info.get('thumbnail', '')
-            duration = info.get('duration', 0)  # সেকেন্ডে আসবে
-            view_count = info.get('view_count', 0)
-            like_count = info.get('like_count', 0)
-            comment_count = info.get('comment_count', 0)
-            uploader = info.get('uploader', '')
-            
             return jsonify({
                 "status": "success",
-                "title": title,
-                "description": description,
-                "thumbnail": thumbnail,
-                "duration": duration,
-                "view_count": view_count,
-                "like_count": like_count,
-                "comment_count": comment_count,
-                "uploader": uploader
+                "title": info.get('title', ''),
+                "description": info.get('description', ''),
+                "thumbnail": info.get('thumbnail', ''),
+                "duration": info.get('duration', 0),
+                "view_count": info.get('view_count', 0),
+                "like_count": info.get('like_count', 0),
+                "comment_count": info.get('comment_count', 0),
+                "uploader": info.get('uploader', '')
             })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# ২. এই রুটটি কোনো ব্লকিং ছাড়া সরাসরি ভিডিও প্রক্সি ডাউনলোড করাবে
 @app.route('/download', methods=['GET'])
 def download_video():
     video_url = request.args.get('url')
@@ -66,7 +60,13 @@ def download_video():
         }
 
         req = requests.get(real_url, headers=headers, stream=True)
-        response = Response(req.iter_content(chunk_size=1024*1024), content_type=req.headers.get('Content-Type'))
+        
+        def generate():
+            for chunk in req.iter_content(chunk_size=1024*1024):
+                if chunk:
+                    yield chunk
+
+        response = Response(generate(), content_type=req.headers.get('Content-Type'))
         response.headers['Content-Disposition'] = f'attachment; filename={safe_title}.mp4'
         return response
 
@@ -74,4 +74,5 @@ def download_video():
         return f"Error: {str(e)}", 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
