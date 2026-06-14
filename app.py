@@ -32,7 +32,8 @@ def get_video():
                 "duration": info.get('duration', 0),
                 "view_count": info.get('view_count', 0),
                 "like_count": info.get('like_count', 0),
-                "uploader": info.get('uploader', '')
+                "uploader": info.get('uploader', ''),
+                "info": info;
             })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
