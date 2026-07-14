@@ -22,8 +22,13 @@ def get_video():
         'no_warnings': True,
     }
 
-    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     url_lower = video_url.lower()
+
+    # কন্ডিশন: শুধুমাত্র ইউটিউব লিঙ্কের জন্য ফরম্যাট 'best' সেট হবে (ffmpeg ছাড়া এরর এড়াতে)
+    if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+        ydl_opts['format'] = 'best'
+
+    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
@@ -53,8 +58,15 @@ def download_video():
         'merge_output_format': 'mp4',
     }
 
-    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     url_lower = video_url.lower()
+
+    # কন্ডিশন: শুধুমাত্র ইউটিউব লিঙ্কের জন্য ফরম্যাট 'best' সেট হবে যেন মার্জ করার ঝামেলা না থাকে
+    if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+        ydl_opts['format'] = 'best'
+        # ইউটিউবের বেস্ট ফরম্যাটে সাধারণত অলরেডি অডিও-ভিডিও মার্জড থাকে, তাই মার্জ ফরম্যাট অপশনটি রিমুভ করে দিচ্ছি
+        ydl_opts.pop('merge_output_format', None)
+
+    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
