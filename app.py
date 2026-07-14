@@ -8,7 +8,8 @@ app = Flask(__name__)
 def home():
     return jsonify({"status": "running", "message": "yt-dlp API is fully working!"})
 
-# ১. ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail) পাওয়ার জন্য
+
+# ১. ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail) পাওয়ার জন্য
 @app.route('/get-video', methods=['GET'])
 def get_video():
     video_url = request.args.get('url')
@@ -21,13 +22,18 @@ def get_video():
         'no_warnings': True,
     }
 
+    # কন্ডিশন: ইনস্টাগ্রামের ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
+    if 'instagram.com' in video_url.lower():
+        ydl_opts['cookiefile'] = 'cookies.txt'
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=False)
-            return info;
+            return jsonify(info)
           
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 # ২. ভিডিও ডাউনলোড রুট (সাউন্ড ফিক্স সহ)
 @app.route('/download', methods=['GET'])
@@ -46,6 +52,10 @@ def download_video():
         'merge_output_format': 'mp4',
     }
 
+    # কন্ডিশন: ইনস্টাগ্রামের ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
+    if 'instagram.com' in video_url.lower():
+        ydl_opts['cookiefile'] = 'cookies.txt'
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
@@ -57,7 +67,7 @@ def download_video():
             title = info.get('title', 'video')
             safe_title = "".join([c if c.isalnum() else "_" for c in title]) + ".mp4"
 
-        # ফ্ল্যাস্কের 'g' অবজেক্টে ফাইলের পাথটি রেখে দিচ্ছি যেন পরে ডিলিট করা যায়
+        # ফ্ল্যাস্কের 'g' অবজেক্টে ফাইলের পাথটি রেখে দিচ্ছি যেন পরে ডিলিট করা যায়
         g.cleanup_file = filename
 
         return send_file(filename, as_attachment=True, download_name=safe_title)
@@ -65,7 +75,8 @@ def download_video():
     except Exception as e:
         return f"Download Error: {str(e)}", 500
 
-# ডাউনলোড শেষ হওয়ার পর ফাইলটি রেন্ডার থেকে ক্লিন করার সঠিক নিয়ম
+
+# ডাউনলোড শেষ হওয়ার পর ফাইলটি রেন্ডার থেকে ক্লিন করার সঠিক নিয়ম
 @app.teardown_request
 def teardown_request(exception=None):
     filename = g.get('cleanup_file', None)
@@ -74,3 +85,7 @@ def teardown_request(exception=None):
             os.remove(filename)
         except Exception:
             pass
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
