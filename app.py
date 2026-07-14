@@ -22,8 +22,9 @@ def get_video():
         'no_warnings': True,
     }
 
-    # কন্ডিশন: ইনস্টাগ্রামের ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
-    if 'instagram.com' in video_url.lower():
+    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
+    url_lower = video_url.lower()
+    if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
     try:
@@ -52,8 +53,9 @@ def download_video():
         'merge_output_format': 'mp4',
     }
 
-    # কন্ডিশন: ইনস্টাগ্রামের ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
-    if 'instagram.com' in video_url.lower():
+    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
+    url_lower = video_url.lower()
+    if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
     try:
