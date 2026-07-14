@@ -17,18 +17,12 @@ def get_video():
         return jsonify({"status": "error", "message": "URL parameter is missing"}), 400
 
     ydl_opts = {
-        'format': 'bestvideo+bestaudio/best',
+        'format': 'bestvideo+bestaudio/best', # ffmpeg থাকায় এখন সরাসরি বেস্ট কোয়ালিটি কাজ করবে
         'quiet': True,
         'no_warnings': True,
     }
 
     url_lower = video_url.lower()
-
-    # কন্ডিশন: ইউটিউব লিঙ্কের জন্য ফরম্যাট 'best/b' সেট হবে যেন ffmpeg ছাড়া কোনোভাবেই এরর না আসে
-    if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
-        ydl_opts['format'] = 'best/b'
-
-    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
@@ -51,22 +45,14 @@ def download_video():
     output_template = '/tmp/%(id)s.%(ext)s'
     
     ydl_opts = {
-        'format': 'bestvideo+bestaudio/best',
+        'format': 'bestvideo+bestaudio/best', # অটোমেটিক আলাদা অডিও ও ভিডিও বেস্ট কোয়ালিটিতে নামবে
         'outtmpl': output_template,
         'quiet': True,
         'no_warnings': True,
-        'merge_output_format': 'mp4',
+        'merge_output_format': 'mp4', # ffmpeg দিয়ে দুটোকে জোড়া লাগিয়ে mp4 বানাবে
     }
 
     url_lower = video_url.lower()
-
-    # কন্ডিশন: ইউটিউব লিঙ্কের জন্য ফরম্যাট 'best/b' সেট হবে যেন মার্জ করার ঝামেলা বা এরর না থাকে
-    if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
-        ydl_opts['format'] = 'best/b'
-        ydl_opts['ext_to_trim'] = 'mp4' # অতিরিক্ত সেফটি হিসেবে ফরম্যাট ট্রিম সচল রাখা
-        ydl_opts.pop('merge_output_format', None)
-
-    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
