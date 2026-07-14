@@ -9,7 +9,7 @@ def home():
     return jsonify({"status": "running", "message": "yt-dlp API is fully working!"})
 
 
-# ১. ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail) পাওয়ার জন্য
+# ১. ভিডিওর সমস্ত ডিটেইলস পাওয়ার জন্য
 @app.route('/get-video', methods=['GET'])
 def get_video():
     video_url = request.args.get('url')
@@ -17,18 +17,13 @@ def get_video():
         return jsonify({"status": "error", "message": "URL parameter is missing"}), 400
 
     ydl_opts = {
-        'format': 'bestvideo+bestaudio/best',
+        # 'best' দিলে অডিও-ভিডিও একসাথে থাকা সেরা সিঙ্গেল ফাইলটি খুঁজবে (ffmpeg ছাড়া এরর দেবে না)
+        'format': 'best', 
         'quiet': True,
         'no_warnings': True,
     }
 
     url_lower = video_url.lower()
-
-    # কন্ডিশন: শুধুমাত্র ইউটিউব লিঙ্কের জন্য ফরম্যাট 'best' সেট হবে (ffmpeg ছাড়া এরর এড়াতে)
-    if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
-        ydl_opts['format'] = 'best'
-
-    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
@@ -41,7 +36,7 @@ def get_video():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# ২. ভিডিও ডাউনলোড রুট (সাউন্ড ফিক্স সহ)
+# ২. ভিডিও ডাউনলোড রুট
 @app.route('/download', methods=['GET'])
 def download_video():
     video_url = request.args.get('url')
@@ -51,22 +46,14 @@ def download_video():
     output_template = '/tmp/%(id)s.%(ext)s'
     
     ydl_opts = {
-        'format': 'bestvideo+bestaudio/best',
+        # এখানেও 'best' করে দেওয়া হয়েছে যেন মার্জ করার ঝামেলা না থাকে
+        'format': 'best',
         'outtmpl': output_template,
         'quiet': True,
         'no_warnings': True,
-        'merge_output_format': 'mp4',
     }
 
     url_lower = video_url.lower()
-
-    # কন্ডিশন: শুধুমাত্র ইউটিউব লিঙ্কের জন্য ফরম্যাট 'best' সেট হবে যেন মার্জ করার ঝামেলা না থাকে
-    if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
-        ydl_opts['format'] = 'best'
-        # ইউটিউবের বেস্ট ফরম্যাটে সাধারণত অলরেডি অডিও-ভিডিও মার্জড থাকে, তাই মার্জ ফরম্যাট অপশনটি রিমুভ করে দিচ্ছি
-        ydl_opts.pop('merge_output_format', None)
-
-    # কন্ডিশন: ইনস্টাগ্রাম অথবা ইউটিউব এর ইউআরএল হলে আপলোড করা cookies.txt ব্যবহার করবে
     if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
@@ -81,7 +68,6 @@ def download_video():
             title = info.get('title', 'video')
             safe_title = "".join([c if c.isalnum() else "_" for c in title]) + ".mp4"
 
-        # ফ্ল্যাস্কের 'g' অবজেক্টে ফাইলের পাথটি রেখে দিচ্ছি যেন পরে ডিলিট করা যায়
         g.cleanup_file = filename
 
         return send_file(filename, as_attachment=True, download_name=safe_title)
@@ -90,7 +76,7 @@ def download_video():
         return f"Download Error: {str(e)}", 500
 
 
-# ডাউনলোড শেষ হওয়ার পর ফাইলটি রেন্ডার থেকে ক্লিন করার সঠিক নিয়ম
+# ডাউনলোড শেষ হওয়ার পর ফাইলটি রেন্ডার থেকে ক্লিন করার নিয়ম
 @app.teardown_request
 def teardown_request(exception=None):
     filename = g.get('cleanup_file', None)
