@@ -35,57 +35,5 @@ def get_video():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# ২. ভিডিও ডাউনলোড রুট (সাউন্ড ফিক্স সহ)
-@app.route('/download', methods=['GET'])
-def download_video():
-    video_url = request.args.get('url')
-    if not video_url:
-        return "URL parameter is missing", 400
-
-    output_template = '/tmp/%(id)s.%(ext)s'
-    
-    ydl_opts = {
-        'format': 'bestvideo+bestaudio/best', # অটোমেটিক আলাদা অডিও ও ভিডিও বেস্ট কোয়ালিটিতে নামবে
-        'outtmpl': output_template,
-        'quiet': True,
-        'no_warnings': True,
-        'merge_output_format': 'mp4', # ffmpeg দিয়ে দুটোকে জোড়া লাগিয়ে mp4 বানাবে
-    }
-
-    url_lower = video_url.lower()
-   if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower or 'x.com' in url_lower or 'twitter.com' in url_lower:
-        ydl_opts['cookiefile'] = 'cookies.txt'
-
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info)
-            
-            if not os.path.exists(filename):
-                filename = filename.rsplit('.', 1)[0] + '.mp4'
-
-            title = info.get('title', 'video')
-            safe_title = "".join([c if c.isalnum() else "_" for c in title]) + ".mp4"
-
-        # ফ্ল্যাস্কের 'g' অবজেক্টে ফাইলের পাথটি রেখে দিচ্ছি যেন পরে ডিলিট করা যায়
-        g.cleanup_file = filename
-
-        return send_file(filename, as_attachment=True, download_name=safe_title)
-
-    except Exception as e:
-        return f"Download Error: {str(e)}", 500
-
-
-# ডাউনলোড শেষ হওয়ার পর ফাইলটি রেন্ডার থেকে ক্লিন করার সঠিক নিয়ম
-@app.teardown_request
-def teardown_request(exception=None):
-    filename = g.get('cleanup_file', None)
-    if filename and os.path.exists(filename):
-        try:
-            os.remove(filename)
-        except Exception:
-            pass
-
-
 if __name__ == '__main__':
     app.run(debug=True)
