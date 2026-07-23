@@ -53,7 +53,7 @@ def download_video():
     }
 
     url_lower = video_url.lower()
-    if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+   if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower or 'x.com' in url_lower or 'twitter.com' in url_lower:
         ydl_opts['cookiefile'] = 'cookies.txt'
 
     try:
