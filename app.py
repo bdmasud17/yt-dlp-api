@@ -23,28 +23,24 @@ def get_video():
     )
 
   # টিকটক সহ অন্যান্য সোশ্যাল মিডিয়ার জন্য অপটিমাইজড অপশন
-  ydl_opts = {
-      'format': 'bestvideo+bestaudio/best',
-      'quiet': True,
-      'no_warnings': True,
-      # টিকটকের নতুন নিরাপত্তা বাইপাস করার জন্য এক্সট্রাক্টর আর্গুমেন্ট
-      'extractor_args': {
-          'tiktok': {
-              'app_version': '34.0.0',
-              'manifest_app_version': '34.0.0',
-              'web_client_name': 'android',
-          }
-      },
-      # স্ট্যান্ডার্ড অ্যান্ড্রয়েড ব্রাউজার হেডার
-      'http_headers': {
-          'User-Agent': (
-              'com.zhiliaoapp.musically/2023400000 (Linux; U; Android 13;'
-              ' en_US; Pixel 7; Build/TQ3A.230901.001; Cronet/TTNetVersion:95e54eb8'
-              ' 2023-08-16 QuicVersion:4d60e653 2023-08-14)'
-          ),
-          'Accept-Language': 'en-US,en;q=0.9',
-      },
-  }
+ ydl_opts = {
+        'format': 'bestvideo+bestaudio/best',
+        'quiet': True,
+        'no_warnings': True,
+        # আসল Chrome ব্রাউজারের মতো আচরণ করানোর জন্য impersonate ব্যবহার:
+        'impersonate': 'chrome', 
+        'extractor_args': {
+            'tiktok': {
+                'app_version': '34.0.0',
+                'manifest_app_version': '34.0.0',
+                'web_client_name': 'android',
+            }
+        },
+        'http_headers': {
+            'User-Agent': 'com.zhiliaoapp.musically/2023400000 (Linux; U; Android 13; en_US; Pixel 7; Build/TQ3A.230901.001; Cronet/TTNetVersion:95e54eb8 2023-08-16 QuicVersion:4d60e653 2023-08-14)',
+            'Accept-Language': 'en-US,en;q=0.9',
+        },
+    }
 
   url_lower = video_url.lower()
 
