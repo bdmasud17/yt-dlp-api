@@ -1,39 +1,75 @@
 import os
-from flask import Flask, request, jsonify, send_file, g
+from flask import Flask, request, jsonify
+
 import yt_dlp
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def home():
-    return jsonify({"status": "running", "message": "yt-dlp API is fully working!"})
+  return jsonify(
+      {"status": "running", "message": "yt-dlp API is fully working!"}
+  )
 
 
-# ১. ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail) পাওয়ার জন্য
+# ১. ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail, Direct URL) পাওয়ার জন্য
 @app.route('/get-video', methods=['GET'])
 def get_video():
-    video_url = request.args.get('url')
-    if not video_url:
-        return jsonify({"status": "error", "message": "URL parameter is missing"}), 400
+  video_url = request.args.get('url')
+  if not video_url:
+    return jsonify({"status": "error", "message": "URL parameter is missing"}), (
+        400
+    )
 
-    ydl_opts = {
-        'format': 'bestvideo+bestaudio/best', # ffmpeg থাকায় এখন সরাসরি বেস্ট কোয়ালিটি কাজ করবে
-        'quiet': True,
-        'no_warnings': True,
-    }
+  # টিকটক সহ অন্যান্য সোশ্যাল মিডিয়ার জন্য অপটিমাইজড অপশন
+  ydl_opts = {
+      'format': 'bestvideo+bestaudio/best',
+      'quiet': True,
+      'no_warnings': True,
+      # টিকটকের নতুন নিরাপত্তা বাইপাস করার জন্য এক্সট্রাক্টর আর্গুমেন্ট
+      'extractor_args': {
+          'tiktok': {
+              'app_version': '34.0.0',
+              'manifest_app_version': '34.0.0',
+              'web_client_name': 'android',
+          }
+      },
+      # স্ট্যান্ডার্ড অ্যান্ড্রয়েড ব্রাউজার হেডার
+      'http_headers': {
+          'User-Agent': (
+              'com.zhiliaoapp.musically/2023400000 (Linux; U; Android 13;'
+              ' en_US; Pixel 7; Build/TQ3A.230901.001; Cronet/TTNetVersion:95e54eb8'
+              ' 2023-08-16 QuicVersion:4d60e653 2023-08-14)'
+          ),
+          'Accept-Language': 'en-US,en;q=0.9',
+      },
+  }
 
-    url_lower = video_url.lower()
-    if 'instagram.com' in url_lower or 'youtube.com' in url_lower or 'youtu.be' in url_lower or 'x.com' in url_lower or 'tiktok.com' in url_lower:
-        ydl_opts['cookiefile'] = 'cookies.txt'
+  url_lower = video_url.lower()
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=False)
-            return jsonify(info)
-          
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+  # নির্দিষ্ট সাইটগুলোর জন্য কুকি ফাইল যুক্ত করার চেক
+  if any(
+      domain in url_lower
+      for domain in [
+          'instagram.com',
+          'youtube.com',
+          'youtu.be',
+          'x.com',
+          'tiktok.com',
+      ]
+  ):
+    if os.path.exists('cookies.txt'):
+      ydl_opts['cookiefile'] = 'cookies.txt'
+
+  try:
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+      info = ydl.extract_info(video_url, download=False)
+      return jsonify(info)
+
+  except Exception as e:
+    return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+  app.run(debug=True)
