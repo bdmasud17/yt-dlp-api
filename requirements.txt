@@ -1,4 +1,4 @@
 Flask==3.0.2
-yt-dlp
+https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
 gunicorn==21.2.0
 requests==2.31.0
