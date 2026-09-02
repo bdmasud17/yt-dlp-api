@@ -1,6 +1,5 @@
 import os
 from flask import Flask, jsonify, request
-
 import yt_dlp
 
 app = Flask(__name__)
@@ -13,7 +12,6 @@ def home():
   )
 
 
-# ১. ভিডিওর সমস্ত ডিটেইলস (Title, Desc, Thumbnail, Direct URL) পাওয়ার জন্য
 @app.route('/get-video', methods=['GET'])
 def get_video():
   video_url = request.args.get('url')
@@ -22,33 +20,26 @@ def get_video():
         400
     )
 
-  # টিকটক সহ অন্যান্য সোশ্যাল মিডিয়ার জন্য অপটিমাইজড অপশন
+  # TikTok বাইপাস করার জন্য অপটিমাইজড ydl_opts
   ydl_opts = {
-      'format': 'bestvideo+bestaudio/best',
       'quiet': True,
       'no_warnings': True,
-      # আসল Chrome ব্রাউজারের মতো আচরণ করানোর জন্য impersonate ব্যবহার:
-      'impersonate': 'chrome',
-      'extractor_args': {
-          'tiktok': {
-              'app_version': '34.0.0',
-              'manifest_app_version': '34.0.0',
-              'web_client_name': 'android',
-          }
-      },
+      'format': 'best',
+      # টিকটকের জন্য রেগুলার ব্রাউজার হেডার
       'http_headers': {
           'User-Agent': (
-              'com.zhiliaoapp.musically/2023400000 (Linux; U; Android 13;'
-              ' en_US; Pixel 7; Build/TQ3A.230901.001; Cronet/TTNetVersion:95e54eb8'
-              ' 2023-08-16 QuicVersion:4d60e653 2023-08-14)'
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+              ' (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
           ),
+          'Accept': '*/*',
           'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': 'https://www.tiktok.com/',
       },
   }
 
   url_lower = video_url.lower()
 
-  # নির্দিষ্ট সাইটগুলোর জন্য কুকি ফাইল যুক্ত করার চেক
+  # কুকি ফাইল থাকলে তা ব্যবহারের অপশন
   if any(
       domain in url_lower
       for domain in [
@@ -65,10 +56,13 @@ def get_video():
   try:
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
       info = ydl.extract_info(video_url, download=False)
+      # সংক্ষেপে মূল দরকারি তথ্যগুলো পাঠানোর জন্য
       return jsonify(info)
 
   except Exception as e:
-    return jsonify({'status': 'error', 'message': str(e)}), 500
+    # এরর মেসেজ যেন খালি না থাকে তার জন্য fallback মেসেজ
+    error_msg = str(e) if str(e) else repr(e)
+    return jsonify({'status': 'error', 'message': error_msg}), 500
 
 
 if __name__ == '__main__':
