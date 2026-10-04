@@ -16,6 +16,20 @@
 .instagram.com	TRUE	/	TRUE	1822640710	sessionid	57255285218%3AkexWUJ04rgvWsR%3A4%3AAYn2oTAjA1yzGD4O3xzuZOoSMypdLTAB6Fyz9kw15A
 .instagram.com	TRUE	/	TRUE	0	rur	VLL%2C17841457276556910%2C1792314765%3A01fff56c69b547b88d57dcf0c6fa56965dbdbdf9054919cadf7ad2679873b3594282ad8d
 
+# Netscape HTTP Cookie File
+# https://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file! Do not edit.
+
+.facebook.com	TRUE	/	TRUE	1813429822	datr	PmYHanY9q9fflUo6UL1Hf1wE
+.facebook.com	TRUE	/	TRUE	1813430615	ps_l	1
+.facebook.com	TRUE	/	TRUE	1813430615	ps_n	1
+.facebook.com	TRUE	/	TRUE	1825655878	sb	63EHam5uNbOjs4gdXbS3OpJH
+.facebook.com	TRUE	/	TRUE	1822642181	c_user	100069555074071
+.facebook.com	TRUE	/	TRUE	1822642181	xs	33%3AzLYl2e24s9snEQ%3A2%3A1791095877%3A-1%3A-1%3A%3AAcz44NfNcD2L64ucq_DbcnVjOeabc4ENZAyVSTj7qQ
+.facebook.com	TRUE	/	TRUE	1798882316	fr	1Vn5W5o6taeKGuPM3.AWfEQpW9B5vghYR_bPjQrWd1fRJ7yIK2__a28kV_HwRnQgrXksE.BqwhyF..AAA.0.0.Bqwh0M.AWc4avaIjwmEN6WzDLdrB8OSXlA
+.facebook.com	TRUE	/	TRUE	1791711123	wd	1600x731
+.facebook.com	TRUE	/	TRUE	0	presence	C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1791106323917%2C%22v%22%3A1%7D
+
 
 # Netscape HTTP Cookie File
 # https://curl.haxx.se/rfc/cookie_spec.html
