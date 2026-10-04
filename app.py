@@ -47,6 +47,7 @@ def get_video():
           'youtube.com',
           'youtu.be',
           'x.com',
+          'facebook.cpm',
           'tiktok.com',
       ]
   ):
