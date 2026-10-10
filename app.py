@@ -5,7 +5,7 @@ import yt_dlp
 app = Flask(__name__)
 
 # প্রক্সি Render-এর Environment Variable থেকে আসবে (কোডে লিখো না)
-PROXY_URL = os.environ.get("PROXY_URL", "ReEUR3ZzXcu0D9P:g7gjZGC56bO8dgr_country-CA_region-alberta_city-calgary_session-98968521_ttl-30@thehub.proxy-cheap.com:8080")
+PROXY_URL = os.environ.get("PROXY_URL", "http://ReEUR3ZzXcu0D9P:g7gjZGC56bO8dgr_country-BD@thehub.proxy-cheap.com:8080")
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
