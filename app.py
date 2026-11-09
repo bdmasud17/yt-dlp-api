@@ -5,10 +5,11 @@ import yt_dlp
 app = Flask(__name__)
 
 
+
 @app.route('/')
 def home():
   return jsonify(
-      {"status": "running", "message": "yt-dlp API is fully working!!"}
+      {"status": "running", "message": "yt-dlp API is fully working!"}
   )
 
 
@@ -65,7 +66,5 @@ def get_video():
     error_msg = str(e) if str(e) else repr(e)
     return jsonify({'status': 'error', 'message': error_msg}), 500
 
- if os.path.exists('cookies.txt'):
-      ydl_opts['cookiefile'] = 'cookies.txt'
 if __name__ == '__main__':
   app.run(debug=True)
