@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route('/')
 def home():
   return jsonify(
-      {"status": "running", "message": "yt-dlp API is fully working!"}
+      {"status": "running", "message": "yt-dlp API is fully working!!"}
   )
 
 
